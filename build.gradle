@@ -4,9 +4,12 @@ plugins {
     id 'maven-publish'
 }
 
-group 'org.example'
+group 'wtf.topi.plugin.sponsorblock'
 version '1.0'
 mainClassName = "org.springframework.boot.loader.JarLauncher"
+
+sourceCompatibility = 11
+compileJava.options.encoding = 'UTF-8'
 
 repositories {
     mavenCentral()
