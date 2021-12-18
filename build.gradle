@@ -1,0 +1,33 @@
+plugins {
+    id 'java'
+    id 'application'
+    id 'maven-publish'
+}
+
+group 'org.example'
+version '1.0'
+mainClassName = "org.springframework.boot.loader.JarLauncher"
+
+repositories {
+    mavenCentral()
+    maven { url 'https://jitpack.io' }
+
+    // Transitive dependencies
+    maven { url 'https://m2.dv8tion.net/releases' }
+    jcenter()
+}
+
+dependencies {
+    implementation "dev.arbjerg.lavalink:plugin-api:0.6.0"
+    runtimeOnly "com.github.freyacodes.lavalink:Lavalink-Server:feature~plugins-SNAPSHOT"
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            pom {
+                from components.java
+            }
+        }
+    }
+}
