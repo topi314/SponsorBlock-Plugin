@@ -1,29 +1,23 @@
 # SponsorBLockPlugin
 
-this plugin extends the play payload by following fields
+This plugin integrates https://sponsor.ajay.app/ into lavalink
 
 ---
 
-## Payload
+## Usage
+
+In the `play` op you can tell which segment categories you want to skip. The plugin then fetches the segments for the played youtube video and skips those.
+
 ````json
 {
-  // Old Fields
-  "op": "play",
-  "guildId": "...",
-  "track": "...",
-  "startTime": "60000",
-  "endTime": "120000",
-  "volume": "100",
-  "noReplace": false,
-  "pause": false,
-  // New Fields
+  ...
   "skipSegments": [
     "segmentCategory"
   ]
 }
 ````
 
-## [Segment Categories](https://wiki.sponsor.ajay.app/w/Segment_Categories):
+### [Segment Categories](https://wiki.sponsor.ajay.app/w/Segment_Categories):
 * sponsor
 * selfpromo
 * interaction
