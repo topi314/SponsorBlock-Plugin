@@ -9,10 +9,6 @@ import java.io.IOException;
 
 public class TrackUtils {
 
-	public static void main(String[] args) {
-		getAudioTrackInfo("QAAAnwIANlVwZ3JhZGluZyBUaGlzIFRFUlJJQkxFIENvbXB1dGVyIC0gUk9HIFJpZyBSZWJvb3QgMjAyMQAPTGludXMgVGVjaCBUaXBzAAAAAAANH2AACzRuSlV1Tng4MDBVAAEAK2h0dHBzOi8vd3d3LnlvdXR1YmUuY29tL3dhdGNoP3Y9NG5KVXVOeDgwMFUAB3lvdXR1YmUAAAAAAAAAAA==");
-	}
-
 	public static AudioTrackInfo getAudioTrackInfo(String track) {
 		var stream = new MessageInput(new ByteArrayInputStream(Base64.decodeBase64(track)));
 		try {
@@ -30,7 +26,7 @@ public class TrackUtils {
 			var isStream = input.readBoolean();
 			var uri = version >= 2 ? DataFormatTools.readNullableText(input) : null;
 			var sourceName = input.readUTF();
-			var position = 0;
+			var position = input.readLong();
 			var trackInfo = new AudioTrackInfo(title, author, length, identifier, isStream, uri, sourceName, position);
 			stream.skipRemainingBytes();
 			return trackInfo;

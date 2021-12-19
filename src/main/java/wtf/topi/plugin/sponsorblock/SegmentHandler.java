@@ -4,15 +4,17 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.TrackMarker;
 import com.sedmelluq.discord.lavaplayer.track.TrackMarkerHandler;
 
+import java.util.List;
+
 public class SegmentHandler implements TrackMarkerHandler {
+
 	private final AudioTrack track;
-
 	private int currentSegment;
-	private final SponsorBlockPlugin plugin;
+	private final List<VideoSegment> segments;
 
-	public SegmentHandler(AudioTrack track, SponsorBlockPlugin plugin) {
+	public SegmentHandler(AudioTrack track, List<VideoSegment> segments) {
 		this.track = track;
-		this.plugin = plugin;
+		this.segments = segments;
 	}
 
 	@Override
@@ -20,7 +22,6 @@ public class SegmentHandler implements TrackMarkerHandler {
 		if (!(state == MarkerState.REACHED || state == MarkerState.LATE)) {
 			return;
 		}
-		var segments = plugin.getVideoSegments(track.getIdentifier());
 		track.setPosition(segments.get(this.currentSegment).getSegmentEnd());
 
 		this.currentSegment++;

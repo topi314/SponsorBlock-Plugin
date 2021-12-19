@@ -21,8 +21,8 @@ repositories {
 }
 
 dependencies {
-    implementation "dev.arbjerg.lavalink:plugin-api:0.6.0"
-    runtimeOnly "com.github.freyacodes.lavalink:Lavalink-Server:feature~plugins-SNAPSHOT"
+    implementation "dev.arbjerg.lavalink:plugin-api:0.7.0"
+    runtimeOnly "com.github.freyacodes.lavalink:Lavalink-Server:aee109e"
 }
 
 publishing {

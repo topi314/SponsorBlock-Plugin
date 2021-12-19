@@ -3,7 +3,6 @@ package wtf.topi.plugin.sponsorblock;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
-import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
 import com.sedmelluq.discord.lavaplayer.track.TrackMarker;
 import dev.arbjerg.lavalink.api.IPlayer;
 import dev.arbjerg.lavalink.api.ISocketContext;
@@ -20,10 +19,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class SponsorBlockPlugin implements PluginEventHandler {
@@ -31,11 +28,11 @@ public class SponsorBlockPlugin implements PluginEventHandler {
 	private static final Logger log = LoggerFactory.getLogger(SponsorBlockPlugin.class);
 	private static final String SPONSORBLOCK_URL = "https://sponsor.ajay.app/api/skipSegments?videoID=%s&categories=%s";
 
-	private Map<String, List<VideoSegment>> segmentsCache;
+	private final Map<Long, Set<String>> categoriesToSkip;
 
 	public SponsorBlockPlugin() {
 		log.info("Hello, world!");
-		segmentsCache = new HashMap<>();
+		categoriesToSkip = new HashMap<>();
 	}
 
 	@Override
@@ -44,50 +41,49 @@ public class SponsorBlockPlugin implements PluginEventHandler {
 		if (!json.getString("op").equals("play")) {
 			return;
 		}
-		if (!json.getBoolean("skipSegments")) {
-			return;
-		}
-
 		var info = TrackUtils.getAudioTrackInfo(json.getString("track"));
 		if (info == null || !info.sourceName.equals("youtube")) {
 			return;
 		}
+		var rawSegments = json.optJSONArray("skipSegments");
+		if (rawSegments == null) {
+			return;
+		}
+		var segments = new HashSet<String>();
+		rawSegments.forEach(segment -> segments.add((String) segment));
 
-		// load segments
-		var segments = this.retrieveVideoSegments(info.identifier);
-		this.segmentsCache.put(info.identifier, segments);
+		this.categoriesToSkip.put(json.getLong("guildId"), segments);
 	}
 
 	@Override
-	public void onNewPlayer(ISocketContext context, IPlayer player) {
-		var plugin = this;
-		player.getAudioPlayer().addListener(new AudioEventAdapter() {
+	public void onNewPlayer(ISocketContext context, IPlayer iPlayer) {
+		iPlayer.getAudioPlayer().addListener(new AudioEventAdapter() {
 			@Override
 			public void onTrackStart(AudioPlayer player, AudioTrack track) {
 				if (track.getSourceManager() == null || !track.getSourceManager().getSourceName().equals("youtube")) {
 					return;
 				}
-				var segments = segmentsCache.get(track.getIdentifier());
-				if (segments != null && !segments.isEmpty()) {
-					track.setMarker(new TrackMarker(segments.get(0).getSegmentStart(), new SegmentHandler(track, plugin)));
+				var categories = categoriesToSkip.get(iPlayer.getGuildId());
+				if (categories == null) {
+					return;
 				}
-			}
-
-			@Override
-			public void onTrackEnd(AudioPlayer player, AudioTrack track, AudioTrackEndReason endReason) {
-				segmentsCache.remove(track.getIdentifier());
+				var segments = retrieveVideoSegments(track.getIdentifier(), categories);
+				if (segments != null && !segments.isEmpty()) {
+					track.setMarker(new TrackMarker(segments.get(0).getSegmentStart(), new SegmentHandler(track, segments)));
+				}
 			}
 		});
 	}
 
-	public List<VideoSegment> getVideoSegments(String videoId) {
-		return this.segmentsCache.get(videoId);
+	@Override
+	public void onDestroyPlayer(ISocketContext context, IPlayer player) {
+		categoriesToSkip.remove(player.getGuildId());
 	}
 
-	public List<VideoSegment> retrieveVideoSegments(String videoId) {
+	public List<VideoSegment> retrieveVideoSegments(String videoId, Set<String> categories) {
 		var body = "";
 		try {
-			var url = new URL(String.format(SPONSORBLOCK_URL, videoId, URLEncoder.encode("[\"sponsor\", \"selfpromo\", \"interaction\", \"intro\", \"outro\", \"preview\", \"music_offtopic\"]", StandardCharsets.UTF_8)));
+			var url = new URL(String.format(SPONSORBLOCK_URL, videoId, URLEncoder.encode("[" + categories.stream().map(s -> "\"" + s + "\"").collect(Collectors.joining(", ")) + "]", StandardCharsets.UTF_8)));
 			var con = (HttpURLConnection) url.openConnection();
 			con.setRequestMethod("GET");
 			con.connect();
@@ -105,8 +101,6 @@ public class SponsorBlockPlugin implements PluginEventHandler {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
-		System.out.println("BODY: " + body);
 
 		var json = new JSONArray(body);
 		var segments = new ArrayList<VideoSegment>();
