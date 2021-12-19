@@ -1,6 +1,6 @@
 # SponsorBLockPlugin
 
-this plugin extends the play payload by follow fields
+this plugin extends the play payload by following fields
 
 ---
 
