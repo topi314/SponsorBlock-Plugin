@@ -2,6 +2,7 @@ plugins {
     id 'java'
     id 'application'
     id 'maven-publish'
+    id 'com.github.johnrengelman.shadow' version '7.1.0'
 }
 
 group 'wtf.topi.plugin.sponsorblock'
