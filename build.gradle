@@ -6,7 +6,7 @@ plugins {
 }
 
 group 'wtf.topi.plugin.sponsorblock'
-version '1.0'
+version '1.0.0'
 mainClassName = "org.springframework.boot.loader.JarLauncher"
 
 sourceCompatibility = 11
