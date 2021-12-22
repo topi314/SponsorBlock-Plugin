@@ -1,4 +1,4 @@
-package wtf.topi.plugin.sponsorblock;
+package com.github.topisenpai.plugin.sponsorblock;
 
 import com.sedmelluq.discord.lavaplayer.tools.DataFormatTools;
 import com.sedmelluq.discord.lavaplayer.tools.io.MessageInput;

@@ -1,4 +1,4 @@
-package wtf.topi.plugin.sponsorblock;
+package com.github.topisenpai.plugin.sponsorblock;
 
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;

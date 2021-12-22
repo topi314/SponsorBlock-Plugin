@@ -1,4 +1,4 @@
-package wtf.topi.plugin.sponsorblock;
+package com.github.topisenpai.plugin.sponsorblock;
 
 public class AudioTrackInfo {
 

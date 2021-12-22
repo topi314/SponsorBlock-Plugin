@@ -1,28 +1,35 @@
 plugins {
-    id 'java'
-    id 'application'
-    id 'maven-publish'
-    id 'com.github.johnrengelman.shadow' version '7.1.0'
+    id "java"
+    id "application"
+    id "maven-publish"
+    id "com.github.johnrengelman.shadow" version "7.1.0"
 }
 
-group 'wtf.topi.plugin.sponsorblock'
-version '1.0.0'
+group "wtf.topi.plugin.sponsorblock"
+version "1.0.0"
 mainClassName = "org.springframework.boot.loader.JarLauncher"
 
 sourceCompatibility = 11
-compileJava.options.encoding = 'UTF-8'
+compileJava.options.encoding = "UTF-8"
 
 repositories {
     mavenCentral()
-    maven { url 'https://jitpack.io' }
+    maven { url "https://jitpack.io" }
 
-    maven { url 'https://m2.dv8tion.net/releases' }
+    maven { url "https://m2.dv8tion.net/releases" }
     jcenter()
 }
 
 dependencies {
-    implementation "dev.arbjerg.lavalink:plugin-api:0.7.0"
+    compileOnly "dev.arbjerg.lavalink:plugin-api:0.7.0"
     runtimeOnly "com.github.freyacodes.lavalink:Lavalink-Server:aee109e"
+}
+
+shadowJar {
+    def impl = project.configurations.implementation
+    impl.canBeResolved(true)
+    configurations = [impl]
+    archiveClassifier.set("")
 }
 
 publishing {
