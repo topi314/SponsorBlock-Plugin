@@ -1,12 +1,23 @@
-# SponsorBLockPlugin
+# SponsorBlock-Plugin
 
-This plugin integrates https://sponsor.ajay.app/ into lavalink
+This plugin integrates [SponsorBlock](https://sponsor.ajay.app) into Lavalink
 
----
+## Installation
+
+To install this plugin either download the latest release and place it into your `plugins` folder or add the following
+into your `application.yml`
+
+```yaml
+lavalink:
+  plugins:
+    - dependency: "com.github.topisenpai:sponsorblock-plugin:latest-release"
+      repository: "https://jitpack.io"
+```
 
 ## Usage
 
-In the `play` op you can tell which segment categories you want to skip. The plugin then fetches the segments for the played youtube video and skips those.
+In the `play` op you can tell which segment categories you want to skip. The plugin then fetches the segments for the
+played youtube video and skips those.
 
 ````json
 {
@@ -16,22 +27,26 @@ In the `play` op you can tell which segment categories you want to skip. The plu
   ]
 }
 ````
+
 [Segment Categories](https://wiki.sponsor.ajay.app/w/Segment_Categories):
-* sponsor
-* selfpromo
-* interaction
-* intro
-* outro
-* preview
-* music_offtopic 
-* filler
+
+* `sponsor`
+* `selfpromo`
+* `interaction`
+* `intro`
+* `outro`
+* `preview`
+* `music_offtopic`
+* `filler`
 
 ---
 
 There are also two new events:
 
-### SegmentsLoaded 
+### SegmentsLoaded
+
 which is fired when the segments for a track are loaded
+
 ````json
 {
   "op": "event",
@@ -40,14 +55,17 @@ which is fired when the segments for a track are loaded
   "segments": [
     {
       "category": "...",
-      "start": "...",// in milliseconds
-      "end": "..."// in milliseconds
+      "start": "...",
+      // in milliseconds
+      "end": "..."
+      // in milliseconds
     }
   ]
 }
 ````
 
 ### SegmentSkipped
+
 which is fired when a segment is skipped
 
 ````json
@@ -57,11 +75,14 @@ which is fired when a segment is skipped
   "guildId": "...",
   "segment": {
     "category": "...",
-    "start": "...",// in milliseconds
-    "end": "..."// in milliseconds
+    "start": "...",
+    // in milliseconds
+    "end": "..."
+    // in milliseconds
   }
 }
 ````
 
 ## Example
-and example implementation in Go can be found [here](https://github.com/TopiSenpai/sponsorblock-plugin-example)
+
+An example implementation in Go can be found [here](https://github.com/TopiSenpai/sponsorblock-plugin-example)

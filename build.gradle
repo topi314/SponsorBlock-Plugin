@@ -6,7 +6,7 @@ plugins {
 }
 
 group "com.github"
-version "1.0.0"
+version "1.0.1"
 mainClassName = "org.springframework.boot.loader.JarLauncher"
 
 sourceCompatibility = 11
@@ -21,8 +21,8 @@ repositories {
 }
 
 dependencies {
-    compileOnly "dev.arbjerg.lavalink:plugin-api:0.7.0"
-    runtimeOnly "com.github.freyacodes.lavalink:Lavalink-Server:aee109e"
+    compileOnly "dev.arbjerg.lavalink:plugin-api:0.8.1"
+    runtimeOnly "com.github.freyacodes.lavalink:Lavalink-Server:47f4771"
 }
 
 shadowJar {

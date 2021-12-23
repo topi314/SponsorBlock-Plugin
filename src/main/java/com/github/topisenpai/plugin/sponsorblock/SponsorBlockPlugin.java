@@ -23,7 +23,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
-public class SponsorBlockPlugin implements PluginEventHandler {
+public class SponsorBlockPlugin extends PluginEventHandler {
 
 	private static final Logger log = LoggerFactory.getLogger(SponsorBlockPlugin.class);
 	private static final String SPONSORBLOCK_URL = "https://sponsor.ajay.app/api/skipSegments?videoID=%s&categories=%s";
@@ -31,6 +31,7 @@ public class SponsorBlockPlugin implements PluginEventHandler {
 	private final Map<Long, Set<String>> categoriesToSkip;
 
 	public SponsorBlockPlugin() {
+		log.info("Loading SponsorBlock Plugin...");
 		this.categoriesToSkip = new HashMap<>();
 	}
 
@@ -88,7 +89,6 @@ public class SponsorBlockPlugin implements PluginEventHandler {
 			con.setRequestMethod("GET");
 			con.connect();
 
-			int status = con.getResponseCode();
 			var in = new BufferedReader(new InputStreamReader(con.getInputStream()));
 			String inputLine;
 			var content = new StringBuilder();
@@ -99,7 +99,7 @@ public class SponsorBlockPlugin implements PluginEventHandler {
 			con.disconnect();
 			body = content.toString();
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("Failed to retrieve video segments", e);
 		}
 
 		var json = new JSONArray(body);
