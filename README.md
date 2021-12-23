@@ -62,3 +62,6 @@ which is fired when a segment is skipped
   }
 }
 ````
+
+## Example
+and example implementation in Go can be found [here](https://github.com/TopiSenpai/sponsorblock-plugin-example)
