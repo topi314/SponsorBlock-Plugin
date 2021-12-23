@@ -16,8 +16,7 @@ In the `play` op you can tell which segment categories you want to skip. The plu
   ]
 }
 ````
-
-### [Segment Categories](https://wiki.sponsor.ajay.app/w/Segment_Categories):
+[Segment Categories](https://wiki.sponsor.ajay.app/w/Segment_Categories):
 * sponsor
 * selfpromo
 * interaction
@@ -26,3 +25,40 @@ In the `play` op you can tell which segment categories you want to skip. The plu
 * preview
 * music_offtopic 
 * filler
+
+---
+
+There are also two new events:
+
+### SegmentsLoaded 
+which is fired when the segments for a track are loaded
+````json
+{
+  "op": "event",
+  "type": "SegmentsLoaded",
+  "guildId": "...",
+  "segments": [
+    {
+      "category": "...",
+      "start": "...",// in milliseconds
+      "end": "..."// in milliseconds
+    }
+  ]
+}
+````
+
+### SegmentSkipped
+which is fired when a segment is skipped
+
+````json
+{
+  "op": "event",
+  "type": "SegmentSkipped",
+  "guildId": "...",
+  "segment": {
+    "category": "...",
+    "start": "...",// in milliseconds
+    "end": "..."// in milliseconds
+  }
+}
+````

@@ -31,8 +31,7 @@ public class SponsorBlockPlugin implements PluginEventHandler {
 	private final Map<Long, Set<String>> categoriesToSkip;
 
 	public SponsorBlockPlugin() {
-		log.info("Hello, world!");
-		categoriesToSkip = new HashMap<>();
+		this.categoriesToSkip = new HashMap<>();
 	}
 
 	@Override
@@ -41,7 +40,7 @@ public class SponsorBlockPlugin implements PluginEventHandler {
 		if (!json.getString("op").equals("play")) {
 			return;
 		}
-		var info = TrackUtils.getAudioTrackInfo(json.getString("track"));
+		var info = AudioTrackInfo.fromTrack(json.getString("track"));
 		if (info == null || !info.sourceName.equals("youtube")) {
 			return;
 		}
@@ -69,7 +68,8 @@ public class SponsorBlockPlugin implements PluginEventHandler {
 				}
 				var segments = retrieveVideoSegments(track.getIdentifier(), categories);
 				if (segments != null && !segments.isEmpty()) {
-					track.setMarker(new TrackMarker(segments.get(0).getSegmentStart(), new SegmentHandler(track, segments)));
+					context.sendMessage(new JSONObject().put("op", "event").put("type", "SegmentsLoaded").put("guildId", String.valueOf(iPlayer.getGuildId())).put("segments", new JSONArray(segments.stream().map(VideoSegment::toJson).collect(Collectors.toList()))));
+					track.setMarker(new TrackMarker(segments.get(0).getSegmentStart(), new SegmentHandler(context, iPlayer.getGuildId(), track, segments)));
 				}
 			}
 		});
@@ -106,10 +106,9 @@ public class SponsorBlockPlugin implements PluginEventHandler {
 		var segments = new ArrayList<VideoSegment>();
 
 		for (var i = 0; i < json.length(); i++) {
-			var segmentTimes = json.getJSONObject(i).getJSONArray("segment");
-			var segmentStart = (long) (segmentTimes.getFloat(0) * 1000);
-			var segmentEnd = (long) (segmentTimes.getFloat(1) * 1000);
-			segments.add(new VideoSegment(segmentStart, segmentEnd));
+			var segment = json.getJSONObject(i);
+			var segmentTimes = segment.getJSONArray("segment");
+			segments.add(new VideoSegment(segment.getString("category"), (long) (segmentTimes.getFloat(0) * 1000), (long) (segmentTimes.getFloat(1) * 1000)));
 		}
 		return segments;
 	}

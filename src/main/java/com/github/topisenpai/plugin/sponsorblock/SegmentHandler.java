@@ -3,16 +3,22 @@ package com.github.topisenpai.plugin.sponsorblock;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.TrackMarker;
 import com.sedmelluq.discord.lavaplayer.track.TrackMarkerHandler;
+import dev.arbjerg.lavalink.api.ISocketContext;
+import org.json.JSONObject;
 
 import java.util.List;
 
 public class SegmentHandler implements TrackMarkerHandler {
 
+	private final ISocketContext context;
+	private final long guildId;
 	private final AudioTrack track;
-	private int currentSegment;
 	private final List<VideoSegment> segments;
+	private int currentSegment;
 
-	public SegmentHandler(AudioTrack track, List<VideoSegment> segments) {
+	public SegmentHandler(ISocketContext context, long guildId, AudioTrack track, List<VideoSegment> segments) {
+		this.context = context;
+		this.guildId = guildId;
 		this.track = track;
 		this.segments = segments;
 	}
@@ -22,8 +28,9 @@ public class SegmentHandler implements TrackMarkerHandler {
 		if (!(state == MarkerState.REACHED || state == MarkerState.LATE)) {
 			return;
 		}
-		track.setPosition(segments.get(this.currentSegment).getSegmentEnd());
-
+		var segment = segments.get(this.currentSegment);
+		track.setPosition(segment.getSegmentEnd());
+		context.sendMessage(new JSONObject().put("op", "event").put("type", "SegmentSkipped").put("guildId", String.valueOf(guildId)).put("segment", segment.toJson()));
 		this.currentSegment++;
 		if (this.currentSegment < segments.size()) {
 			track.setMarker(new TrackMarker(segments.get(this.currentSegment).getSegmentStart(), this));
