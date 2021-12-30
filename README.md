@@ -2,7 +2,7 @@
 
 # SponsorBlock-Plugin
 
-A [Lavalink](https://github.com/freyacodes/Lavalink) plugin to skip [SponsorBlock](https://sponsor.ajay.app) segments
+A [Lavalink](https://github.com/freyacodes/Lavalink) plugin to skip [SponsorBlock](https://sponsor.ajay.app) segments in YouTUbe tracks
 
 ## Installation
 
