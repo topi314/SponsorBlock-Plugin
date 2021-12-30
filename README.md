@@ -2,7 +2,7 @@
 
 # SponsorBlock-Plugin
 
-A [Lavalink](https://github.com/freyacodes/Lavalink) plugin to skip [SponsorBlock](https://sponsor.ajay.app) segments in YouTUbe tracks
+A [Lavalink](https://github.com/freyacodes/Lavalink) plugin to skip [SponsorBlock](https://sponsor.ajay.app) segments in [YouTube](https://youtube.com) videos
 
 ## Installation
 
@@ -12,7 +12,7 @@ into your `application.yml`
 ```yaml
 lavalink:
   plugins:
-    - dependency: "com.github.topisenpai:sponsorblock-plugin:latest-release"
+    - dependency: "com.github.topisenpai:sponsorblock-plugin:vx.x.x" # replace vx.x.x with the latest release tag!
       repository: "https://jitpack.io"
 ```
 
