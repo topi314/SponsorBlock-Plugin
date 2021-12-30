@@ -36,13 +36,17 @@ public class SponsorBlockPlugin extends PluginEventHandler {
 		this.categoriesToSkip = new ConcurrentHashMap<>();
 	}
 
+	public Map<Long, Set<String>> getCategoriesToSkip() {
+		return this.categoriesToSkip;
+	}
+
 	@Override
 	public void onWebsocketMessageIn(ISocketContext socketContext, String message) {
 		var json = new JSONObject(message);
-		if (!json.getString("op").equals("play")) {
+		if (!json.optString("op").equals("play")) {
 			return;
 		}
-		var info = AudioTrackInfo.fromTrack(json.getString("track"));
+		var info = AudioTrackInfo.fromTrack(json.optString("track"));
 		if (info == null || !info.sourceName.equals("youtube")) {
 			return;
 		}
@@ -58,23 +62,7 @@ public class SponsorBlockPlugin extends PluginEventHandler {
 
 	@Override
 	public void onNewPlayer(ISocketContext context, IPlayer iPlayer) {
-		iPlayer.getAudioPlayer().addListener(new AudioEventAdapter() {
-			@Override
-			public void onTrackStart(AudioPlayer player, AudioTrack track) {
-				if (track.getSourceManager() == null || !track.getSourceManager().getSourceName().equals("youtube")) {
-					return;
-				}
-				var categories = categoriesToSkip.get(iPlayer.getGuildId());
-				if (categories == null) {
-					return;
-				}
-				var segments = retrieveVideoSegments(track.getIdentifier(), categories);
-				if (segments != null && !segments.isEmpty()) {
-					context.sendMessage(new JSONObject().put("op", "event").put("type", "SegmentsLoaded").put("guildId", String.valueOf(iPlayer.getGuildId())).put("segments", new JSONArray(segments.stream().map(VideoSegment::toJSON).collect(Collectors.toList()))));
-					track.setMarker(new TrackMarker(segments.get(0).getSegmentStart(), new SegmentHandler(context, iPlayer.getGuildId(), track, segments)));
-				}
-			}
-		});
+		iPlayer.getAudioPlayer().addListener(new PlayerListener(this, context, iPlayer.getGuildId()));
 	}
 
 	@Override
@@ -112,5 +100,39 @@ public class SponsorBlockPlugin extends PluginEventHandler {
 			segments.add(new VideoSegment(segment.getString("category"), (long) (segmentTimes.getFloat(0) * 1000), (long) (segmentTimes.getFloat(1) * 1000)));
 		}
 		return segments;
+	}
+
+	public static class PlayerListener extends AudioEventAdapter {
+
+		private final SponsorBlockPlugin plugin;
+		private final ISocketContext context;
+		private final long guildID;
+
+		public PlayerListener(SponsorBlockPlugin plugin, ISocketContext socketContext, long guildID) {
+			this.plugin = plugin;
+			this.context = socketContext;
+			this.guildID = guildID;
+		}
+
+		@Override
+		public void onTrackStart(AudioPlayer player, AudioTrack track) {
+			if (track.getSourceManager() == null || !track.getSourceManager().getSourceName().equals("youtube")) {
+				return;
+			}
+			var categories = this.plugin.getCategoriesToSkip().get(this.guildID);
+			if (categories == null) {
+				return;
+			}
+			var segments = this.plugin.retrieveVideoSegments(track.getIdentifier(), categories);
+			if (segments != null && !segments.isEmpty()) {
+				context.sendMessage(new JSONObject()
+						.put("op", "event")
+						.put("type", "SegmentsLoaded")
+						.put("guildId", String.valueOf(this.guildID))
+						.put("segments", new JSONArray(segments.stream().map(VideoSegment::toJSON).collect(Collectors.toList()))));
+				track.setMarker(new TrackMarker(segments.get(0).getSegmentStart(), new SegmentHandler(context, this.guildID, track, segments)));
+			}
+		}
+
 	}
 }
