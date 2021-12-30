@@ -1,6 +1,8 @@
+[![](https://jitpack.io/v/TopiSenpai/sponsorblock-plugin.svg)](https://jitpack.io/#TopiSenpai/sponsorblock-plugin)
+
 # SponsorBlock-Plugin
 
-This plugin integrates [SponsorBlock](https://sponsor.ajay.app) into Lavalink
+A [Lavalink](https://github.com/freyacodes/Lavalink) plugin to skip [SponsorBlock](https://sponsor.ajay.app) segments
 
 ## Installation
 
