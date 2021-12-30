@@ -30,7 +30,7 @@ public class SegmentHandler implements TrackMarkerHandler {
 		}
 		var segment = segments.get(this.currentSegment);
 		track.setPosition(segment.getSegmentEnd());
-		context.sendMessage(new JSONObject().put("op", "event").put("type", "SegmentSkipped").put("guildId", String.valueOf(guildId)).put("segment", segment.toJson()));
+		context.sendMessage(new JSONObject().put("op", "event").put("type", "SegmentSkipped").put("guildId", String.valueOf(guildId)).put("segment", segment.toJSON()));
 		this.currentSegment++;
 		if (this.currentSegment < segments.size()) {
 			track.setMarker(new TrackMarker(segments.get(this.currentSegment).getSegmentStart(), this));

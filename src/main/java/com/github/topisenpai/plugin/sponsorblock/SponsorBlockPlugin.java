@@ -20,6 +20,7 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 @Service
@@ -32,7 +33,7 @@ public class SponsorBlockPlugin extends PluginEventHandler {
 
 	public SponsorBlockPlugin() {
 		log.info("Loading SponsorBlock Plugin...");
-		this.categoriesToSkip = new HashMap<>();
+		this.categoriesToSkip = new ConcurrentHashMap<>();
 	}
 
 	@Override
@@ -69,7 +70,7 @@ public class SponsorBlockPlugin extends PluginEventHandler {
 				}
 				var segments = retrieveVideoSegments(track.getIdentifier(), categories);
 				if (segments != null && !segments.isEmpty()) {
-					context.sendMessage(new JSONObject().put("op", "event").put("type", "SegmentsLoaded").put("guildId", String.valueOf(iPlayer.getGuildId())).put("segments", new JSONArray(segments.stream().map(VideoSegment::toJson).collect(Collectors.toList()))));
+					context.sendMessage(new JSONObject().put("op", "event").put("type", "SegmentsLoaded").put("guildId", String.valueOf(iPlayer.getGuildId())).put("segments", new JSONArray(segments.stream().map(VideoSegment::toJSON).collect(Collectors.toList()))));
 					track.setMarker(new TrackMarker(segments.get(0).getSegmentStart(), new SegmentHandler(context, iPlayer.getGuildId(), track, segments)));
 				}
 			}

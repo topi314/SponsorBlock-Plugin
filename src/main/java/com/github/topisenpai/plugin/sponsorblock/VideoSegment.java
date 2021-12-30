@@ -14,7 +14,7 @@ public class VideoSegment {
 		this.segmentEnd = segmentEnd;
 	}
 
-	public JSONObject toJson() {
+	public JSONObject toJSON() {
 		return new JSONObject().put("category", category).put("start", segmentStart).put("end", segmentEnd);
 	}
 
