@@ -57,10 +57,8 @@ which is fired when the segments for a track are loaded
   "segments": [
     {
       "category": "...",
-      "start": "...",
-      // in milliseconds
-      "end": "..."
-      // in milliseconds
+      "start": "...", // in milliseconds
+      "end": "..." // in milliseconds
     }
   ]
 }
@@ -77,10 +75,8 @@ which is fired when a segment is skipped
   "guildId": "...",
   "segment": {
     "category": "...",
-    "start": "...",
-    // in milliseconds
-    "end": "..."
-    // in milliseconds
+    "start": "...", // in milliseconds
+    "end": "..." // in milliseconds
   }
 }
 ````
