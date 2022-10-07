@@ -1,4 +1,4 @@
-[![](https://jitpack.io/v/TopiSenpai/sponsorblock-plugin.svg)](https://jitpack.io/#TopiSenpai/sponsorblock-plugin)
+[![](https://jitpack.io/v/TopiSenpai/Sponsorblock-Plugin.svg)](https://jitpack.io/#TopiSenpai/sponsorblock-plugin)
 
 # SponsorBlock-Plugin
 
@@ -12,7 +12,7 @@ into your `application.yml`
 ```yaml
 lavalink:
   plugins:
-    - dependency: "com.github.topisenpai:sponsorblock-plugin:vx.x.x" # replace vx.x.x with the latest release tag!
+    - dependency: "com.github.TopiSenpai:Sponsorblock-Plugin:x.x.x" # replace x.x.x with the latest release tag!
       repository: "https://jitpack.io"
 ```
 
