@@ -2,11 +2,14 @@ package com.github.topisenpai.plugin.sponsorblock;
 
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
+import com.sedmelluq.discord.lavaplayer.tools.DataFormatTools;
+import com.sedmelluq.discord.lavaplayer.tools.io.MessageInput;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.TrackMarker;
 import dev.arbjerg.lavalink.api.IPlayer;
 import dev.arbjerg.lavalink.api.ISocketContext;
 import dev.arbjerg.lavalink.api.PluginEventHandler;
+import org.apache.commons.codec.binary.Base64;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -14,12 +17,18 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
@@ -46,8 +55,8 @@ public class SponsorBlockPlugin extends PluginEventHandler {
 		if (!json.optString("op").equals("play")) {
 			return;
 		}
-		var info = AudioTrackInfo.fromTrack(json.optString("track"));
-		if (info == null || !info.sourceName.equals("youtube")) {
+		var sourceName = this.readSourceName(json.optString("track"));
+		if (sourceName == null || !sourceName.equals("youtube")) {
 			return;
 		}
 		var rawSegments = json.optJSONArray("skipSegments");
@@ -100,6 +109,32 @@ public class SponsorBlockPlugin extends PluginEventHandler {
 			segments.add(new VideoSegment(segment.getString("category"), (long) (segmentTimes.getFloat(0) * 1000), (long) (segmentTimes.getFloat(1) * 1000)));
 		}
 		return segments;
+	}
+
+	public String readSourceName(String track) {
+		var stream = new MessageInput(new ByteArrayInputStream(Base64.decodeBase64(track)));
+		try {
+			var input = stream.nextMessage();
+			if (input == null) {
+				return null;
+			}
+
+			int version = (stream.getMessageFlags() & 1) != 0 ? (input.readByte() & 0xFF) : 1;
+			input.readUTF();
+			input.readUTF();
+			input.readLong();
+			input.readUTF();
+			input.readBoolean();
+			if (version >= 2) {
+				DataFormatTools.readNullableText(input);
+			}
+			var sourceName = input.readUTF();
+			stream.skipRemainingBytes();
+			return sourceName;
+		} catch (IOException e) {
+			log.error("Failed to read track info", e);
+		}
+		return null;
 	}
 
 	public static class PlayerListener extends AudioEventAdapter {

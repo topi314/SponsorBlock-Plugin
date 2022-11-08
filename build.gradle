@@ -1,43 +1,42 @@
 plugins {
-    id "java"
-    id "application"
-    id "maven-publish"
-    id "com.github.johnrengelman.shadow" version "7.1.1"
+	id "java"
+	id "application"
+	id "maven-publish"
+	id "com.github.johnrengelman.shadow" version "7.1.1"
 }
 
-group "com.github"
-version "1.0.3"
+group "com.github.TopiSenpai.Sponsorblock-Plugin"
+version "1.0.4"
 mainClassName = "org.springframework.boot.loader.JarLauncher"
 
 sourceCompatibility = 11
 compileJava.options.encoding = "UTF-8"
 
 repositories {
-    mavenCentral()
-    maven { url "https://jitpack.io" }
-
-    maven { url "https://m2.dv8tion.net/releases" }
-    jcenter()
+	mavenCentral()
+	maven { url "https://jitpack.io" }
+	maven { url "https://m2.dv8tion.net/releases" }
+	jcenter()
 }
 
 dependencies {
-    compileOnly "dev.arbjerg.lavalink:plugin-api:0.9.0"
-    runtimeOnly "com.github.freyacodes.lavalink:Lavalink-Server:0cce10f"
+	compileOnly "dev.arbjerg.lavalink:plugin-api:3.6.1"
+	// runtimeOnly "com.github.freyacodes.lavalink:Lavalink-Server:3.6.1"
 }
 
 shadowJar {
-    def impl = project.configurations.implementation
-    impl.canBeResolved(true)
-    configurations = [impl]
-    archiveClassifier.set("")
+	def impl = project.configurations.implementation
+	impl.canBeResolved(true)
+	configurations = [impl]
+	archiveClassifier.set("")
 }
 
 publishing {
-    publications {
-        maven(MavenPublication) {
-            pom {
-                from components.java
-            }
-        }
-    }
+	publications {
+		maven(MavenPublication) {
+			pom {
+				from components.java
+			}
+		}
+	}
 }
