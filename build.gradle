@@ -6,7 +6,7 @@ plugins {
 }
 
 group "com.github.TopiSenpai.Sponsorblock-Plugin"
-version "1.0.4"
+version "1.0.5"
 mainClassName = "org.springframework.boot.loader.JarLauncher"
 
 sourceCompatibility = 11

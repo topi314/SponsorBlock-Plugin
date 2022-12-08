@@ -3,6 +3,8 @@ package com.github.topisenpai.plugin.sponsorblock;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
 import com.sedmelluq.discord.lavaplayer.tools.DataFormatTools;
+import com.sedmelluq.discord.lavaplayer.tools.io.HttpClientTools;
+import com.sedmelluq.discord.lavaplayer.tools.io.HttpInterfaceManager;
 import com.sedmelluq.discord.lavaplayer.tools.io.MessageInput;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.TrackMarker;
@@ -10,18 +12,15 @@ import dev.arbjerg.lavalink.api.IPlayer;
 import dev.arbjerg.lavalink.api.ISocketContext;
 import dev.arbjerg.lavalink.api.PluginEventHandler;
 import org.apache.commons.codec.binary.Base64;
+import org.apache.http.client.methods.HttpGet;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -38,10 +37,12 @@ public class SponsorBlockPlugin extends PluginEventHandler {
 	private static final Logger log = LoggerFactory.getLogger(SponsorBlockPlugin.class);
 	private static final String SPONSORBLOCK_URL = "https://sponsor.ajay.app/api/skipSegments?videoID=%s&categories=%s";
 
+	private final HttpInterfaceManager httpInterfaceManager;
 	private final Map<Long, Set<String>> categoriesToSkip;
 
 	public SponsorBlockPlugin() {
 		log.info("Loading SponsorBlock Plugin...");
+		this.httpInterfaceManager = HttpClientTools.createDefaultThreadLocalManager();
 		this.categoriesToSkip = new ConcurrentHashMap<>();
 	}
 
@@ -79,34 +80,19 @@ public class SponsorBlockPlugin extends PluginEventHandler {
 		categoriesToSkip.remove(player.getGuildId());
 	}
 
-	public List<VideoSegment> retrieveVideoSegments(String videoId, Set<String> categories) {
-		var body = "";
-		try {
-			var url = new URL(String.format(SPONSORBLOCK_URL, videoId, URLEncoder.encode("[" + categories.stream().map(s -> "\"" + s + "\"").collect(Collectors.joining(", ")) + "]", StandardCharsets.UTF_8)));
-			var con = (HttpURLConnection) url.openConnection();
-			con.setRequestMethod("GET");
-			con.connect();
+	public List<VideoSegment> retrieveVideoSegments(String videoId, Set<String> categories) throws IOException {
+		var queryParam = URLEncoder.encode("[" + categories.stream().map(s -> "\"" + s + "\"").collect(Collectors.joining(", ")) + "]", StandardCharsets.UTF_8);
+		var request = new HttpGet(String.format(SPONSORBLOCK_URL, videoId, queryParam));
 
-			var in = new BufferedReader(new InputStreamReader(con.getInputStream()));
-			String inputLine;
-			var content = new StringBuilder();
-			while ((inputLine = in.readLine()) != null) {
-				content.append(inputLine);
-			}
-			in.close();
-			con.disconnect();
-			body = content.toString();
-		} catch (Exception e) {
-			log.error("Failed to retrieve video segments", e);
+		var json = HttpClientTools.fetchResponseAsJson(this.httpInterfaceManager.getInterface(), request);
+		if (json == null) {
+			return null;
 		}
 
-		var json = new JSONArray(body);
 		var segments = new ArrayList<VideoSegment>();
-
-		for (var i = 0; i < json.length(); i++) {
-			var segment = json.getJSONObject(i);
-			var segmentTimes = segment.getJSONArray("segment");
-			segments.add(new VideoSegment(segment.getString("category"), (long) (segmentTimes.getFloat(0) * 1000), (long) (segmentTimes.getFloat(1) * 1000)));
+		for (var segment : json.values()) {
+			var segmentTimes = segment.get("segment");
+			segments.add(new VideoSegment(segment.get("category").text(), (long) (segmentTimes.index(0).as(Float.class) * 1000), (long) (segmentTimes.index(1).as(Float.class) * 1000)));
 		}
 		return segments;
 	}
@@ -158,7 +144,13 @@ public class SponsorBlockPlugin extends PluginEventHandler {
 			if (categories == null) {
 				return;
 			}
-			var segments = this.plugin.retrieveVideoSegments(track.getIdentifier(), categories);
+			List<VideoSegment> segments;
+			try {
+				segments = this.plugin.retrieveVideoSegments(track.getIdentifier(), categories);
+			} catch (IOException e) {
+				log.error("Failed to retrieve video segments", e);
+				return;
+			}
 			if (segments != null && !segments.isEmpty()) {
 				context.sendMessage(new JSONObject()
 						.put("op", "event")
@@ -170,4 +162,5 @@ public class SponsorBlockPlugin extends PluginEventHandler {
 		}
 
 	}
+
 }
