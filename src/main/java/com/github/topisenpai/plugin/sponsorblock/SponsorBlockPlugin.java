@@ -89,7 +89,7 @@ public class SponsorBlockPlugin extends PluginEventHandler {
 	}
 
 	@Override
-	public void onSocketContextPaused(ISocketContext context) {
+	public void onSocketContextDestroyed(ISocketContext context) {
 		this.categoriesToSkip.remove(context.getSessionId());
 	}
 
