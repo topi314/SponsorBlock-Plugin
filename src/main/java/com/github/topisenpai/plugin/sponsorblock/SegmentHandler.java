@@ -25,7 +25,7 @@ public class SegmentHandler implements TrackMarkerHandler {
 
 	@Override
 	public void handle(MarkerState state) {
-		if (!(state == MarkerState.REACHED || state == MarkerState.LATE)) {
+		if (!(state == MarkerState.REACHED || state == MarkerState.LATE || state == MarkerState.BYPASSED)) {
 			return;
 		}
 		var segment = segments.get(this.currentSegment);
