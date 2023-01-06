@@ -58,15 +58,6 @@ Request:
 DELETE /v3/sessions/{sessionId}/players/{guildId}/sponsorblock/categories
 ```
 
-Request:
-
-```
-[
-  "sponsor",
-  "selfpromo"
-]
-```
-
 ---
 
 ### [Segment Categories](https://wiki.sponsor.ajay.app/w/Segment_Categories):
