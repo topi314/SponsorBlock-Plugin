@@ -20,8 +20,9 @@ repositories {
 }
 
 dependencies {
-	compileOnly "dev.arbjerg.lavalink:plugin-api:3.6.1"
+	compileOnly "com.github.freyacodes.Lavalink:plugin-api:7857975"
 	// runtimeOnly "com.github.freyacodes.lavalink:Lavalink-Server:3.6.1"
+	compileOnly "org.springframework.boot:spring-boot-starter-web:2.6.6"
 }
 
 shadowJar {
