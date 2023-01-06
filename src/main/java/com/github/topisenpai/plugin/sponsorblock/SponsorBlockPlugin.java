@@ -52,7 +52,7 @@ public class SponsorBlockPlugin extends PluginEventHandler {
 		return this.categoriesToSkip.get(sessionId);
 	}
 
-	@GetMapping("/v3/sessions/{sessionId}/players/{guildId}/sponsorblock/categories")
+	@GetMapping(value = {"/v3/sessions/{sessionId}/players/{guildId}/sponsorblock/categories", "/v4/sessions/{sessionId}/players/{guildId}/sponsorblock/categories"})
 	public Set<String> getCategoriesToSkip(@PathVariable String sessionId, @PathVariable long guildId) {
 		var guildCategoriesToSkip = this.categoriesToSkip.get(sessionId);
 		if (guildCategoriesToSkip == null) {
@@ -65,7 +65,7 @@ public class SponsorBlockPlugin extends PluginEventHandler {
 		return categoriesToSkip;
 	}
 
-	@PutMapping("/v3/sessions/{sessionId}/players/{guildId}/sponsorblock/categories")
+	@PutMapping(value = {"/v3/sessions/{sessionId}/players/{guildId}/sponsorblock/categories", "/v4/sessions/{sessionId}/players/{guildId}/sponsorblock/categories"})
 	public void setCategoriesToSkip(@PathVariable String sessionId, @PathVariable Long guildId, @RequestBody Set<String> categories) {
 		var guildCategoriesToSkip = this.categoriesToSkip.get(sessionId);
 		if (guildCategoriesToSkip == null) {
@@ -74,7 +74,7 @@ public class SponsorBlockPlugin extends PluginEventHandler {
 		guildCategoriesToSkip.put(guildId, categories);
 	}
 
-	@DeleteMapping("/v3/sessions/{sessionId}/players/{guildId}/sponsorblock/categories")
+	@DeleteMapping(value = {"/v3/sessions/{sessionId}/players/{guildId}/sponsorblock/categories", "/v4/sessions/{sessionId}/players/{guildId}/sponsorblock/categories"})
 	public void removeCategoriesToSkip(@PathVariable String sessionId, @PathVariable Long guildId) {
 		var guildCategoriesToSkip = this.categoriesToSkip.get(sessionId);
 		if (guildCategoriesToSkip == null) {
