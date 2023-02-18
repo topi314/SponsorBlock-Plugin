@@ -2,29 +2,32 @@ package com.github.topisenpai.plugin.sponsorblock;
 
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
-import com.sedmelluq.discord.lavaplayer.tools.DataFormatTools;
 import com.sedmelluq.discord.lavaplayer.tools.io.HttpClientTools;
 import com.sedmelluq.discord.lavaplayer.tools.io.HttpInterfaceManager;
-import com.sedmelluq.discord.lavaplayer.tools.io.MessageInput;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.TrackMarker;
 import dev.arbjerg.lavalink.api.IPlayer;
 import dev.arbjerg.lavalink.api.ISocketContext;
 import dev.arbjerg.lavalink.api.PluginEventHandler;
-import org.apache.commons.codec.binary.Base64;
 import org.apache.http.client.methods.HttpGet;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -32,13 +35,14 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 @Service
+@RestController
 public class SponsorBlockPlugin extends PluginEventHandler {
 
 	private static final Logger log = LoggerFactory.getLogger(SponsorBlockPlugin.class);
 	private static final String SPONSORBLOCK_URL = "https://sponsor.ajay.app/api/skipSegments?videoID=%s&categories=%s";
 
 	private final HttpInterfaceManager httpInterfaceManager;
-	private final Map<Long, Set<String>> categoriesToSkip;
+	private final Map<String, Map<Long, Set<String>>> categoriesToSkip;
 
 	public SponsorBlockPlugin() {
 		log.info("Loading SponsorBlock Plugin...");
@@ -46,28 +50,49 @@ public class SponsorBlockPlugin extends PluginEventHandler {
 		this.categoriesToSkip = new ConcurrentHashMap<>();
 	}
 
-	public Map<Long, Set<String>> getCategoriesToSkip() {
-		return this.categoriesToSkip;
+	public Map<Long, Set<String>> getCategoriesToSkip(String sessionId) {
+		return this.categoriesToSkip.get(sessionId);
+	}
+
+	@GetMapping(value = {"/v3/sessions/{sessionId}/players/{guildId}/sponsorblock/categories", "/v4/sessions/{sessionId}/players/{guildId}/sponsorblock/categories"})
+	public Set<String> getCategoriesToSkip(@PathVariable String sessionId, @PathVariable long guildId) {
+		var guildCategoriesToSkip = this.categoriesToSkip.get(sessionId);
+		if (guildCategoriesToSkip == null) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Session not found");
+		}
+		var categoriesToSkip = guildCategoriesToSkip.get(guildId);
+		if (categoriesToSkip == null) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Guild not found");
+		}
+		return categoriesToSkip;
+	}
+
+	@PutMapping(value = {"/v3/sessions/{sessionId}/players/{guildId}/sponsorblock/categories", "/v4/sessions/{sessionId}/players/{guildId}/sponsorblock/categories"})
+	public void setCategoriesToSkip(@PathVariable String sessionId, @PathVariable Long guildId, @RequestBody Set<String> categories) {
+		var guildCategoriesToSkip = this.categoriesToSkip.get(sessionId);
+		if (guildCategoriesToSkip == null) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Session not found");
+		}
+		guildCategoriesToSkip.put(guildId, categories);
+	}
+
+	@DeleteMapping(value = {"/v3/sessions/{sessionId}/players/{guildId}/sponsorblock/categories", "/v4/sessions/{sessionId}/players/{guildId}/sponsorblock/categories"})
+	public void removeCategoriesToSkip(@PathVariable String sessionId, @PathVariable Long guildId) {
+		var guildCategoriesToSkip = this.categoriesToSkip.get(sessionId);
+		if (guildCategoriesToSkip == null) {
+			return;
+		}
+		guildCategoriesToSkip.remove(guildId);
 	}
 
 	@Override
-	public void onWebsocketMessageIn(ISocketContext socketContext, String message) {
-		var json = new JSONObject(message);
-		if (!json.optString("op").equals("play")) {
-			return;
-		}
-		var sourceName = this.readSourceName(json.optString("track"));
-		if (sourceName == null || !sourceName.equals("youtube")) {
-			return;
-		}
-		var rawSegments = json.optJSONArray("skipSegments");
-		if (rawSegments == null) {
-			return;
-		}
-		var segments = new HashSet<String>();
-		rawSegments.forEach(segment -> segments.add((String) segment));
+	public void onWebSocketOpen(ISocketContext context, boolean resumed) {
+		this.categoriesToSkip.put(context.getSessionId(), new ConcurrentHashMap<>());
+	}
 
-		this.categoriesToSkip.put(json.getLong("guildId"), segments);
+	@Override
+	public void onSocketContextDestroyed(ISocketContext context) {
+		this.categoriesToSkip.remove(context.getSessionId());
 	}
 
 	@Override
@@ -77,7 +102,10 @@ public class SponsorBlockPlugin extends PluginEventHandler {
 
 	@Override
 	public void onDestroyPlayer(ISocketContext context, IPlayer player) {
-		categoriesToSkip.remove(player.getGuildId());
+		var guildCategoriesToSkip = categoriesToSkip.get(context.getSessionId());
+		if (guildCategoriesToSkip != null) {
+			guildCategoriesToSkip.remove(player.getGuildId());
+		}
 	}
 
 	public List<VideoSegment> retrieveVideoSegments(String videoId, Set<String> categories) throws IOException {
@@ -97,32 +125,6 @@ public class SponsorBlockPlugin extends PluginEventHandler {
 		return segments;
 	}
 
-	public String readSourceName(String track) {
-		var stream = new MessageInput(new ByteArrayInputStream(Base64.decodeBase64(track)));
-		try {
-			var input = stream.nextMessage();
-			if (input == null) {
-				return null;
-			}
-
-			int version = (stream.getMessageFlags() & 1) != 0 ? (input.readByte() & 0xFF) : 1;
-			input.readUTF();
-			input.readUTF();
-			input.readLong();
-			input.readUTF();
-			input.readBoolean();
-			if (version >= 2) {
-				DataFormatTools.readNullableText(input);
-			}
-			var sourceName = input.readUTF();
-			stream.skipRemainingBytes();
-			return sourceName;
-		} catch (IOException e) {
-			log.error("Failed to read track info", e);
-		}
-		return null;
-	}
-
 	public static class PlayerListener extends AudioEventAdapter {
 
 		private final SponsorBlockPlugin plugin;
@@ -140,7 +142,11 @@ public class SponsorBlockPlugin extends PluginEventHandler {
 			if (track.getSourceManager() == null || !track.getSourceManager().getSourceName().equals("youtube")) {
 				return;
 			}
-			var categories = this.plugin.getCategoriesToSkip().get(this.guildID);
+			var guildCategoriesToSkip = this.plugin.getCategoriesToSkip(this.context.getSessionId());
+			if (guildCategoriesToSkip == null) {
+				return;
+			}
+			var categories = guildCategoriesToSkip.get(this.guildID);
 			if (categories == null) {
 				return;
 			}

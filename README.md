@@ -6,6 +6,8 @@ A [Lavalink](https://github.com/freyacodes/Lavalink) plugin to skip [SponsorBloc
 
 ## Installation
 
+> **Note** This plugin requires Lavalink v3.7 or higher
+
 To install this plugin either download the latest release and place it into your `plugins` folder or add the following
 into your `application.yml`
 
@@ -18,19 +20,49 @@ lavalink:
 
 ## Usage
 
-In the `play` op you can tell which segment categories you want to skip. The plugin then fetches the segments for the
-played youtube video and skips those.
+### Get Categories
 
-```yaml
-{
-  ...
-  "skipSegments": [
-    "segmentCategory"
-  ]
-}
+```
+GET /v3/sessions/{sessionId}/players/{guildId}/sponsorblock/categories
 ```
 
-[Segment Categories](https://wiki.sponsor.ajay.app/w/Segment_Categories):
+Response:
+
+```
+[
+  "sponsor",
+  "selfpromo"
+]
+```
+
+---
+
+### Put Categories
+
+```
+PUT /v3/sessions/{sessionId}/players/{guildId}/sponsorblock/categories
+```
+
+Request:
+
+```
+[
+  "sponsor",
+  "selfpromo"
+]
+```
+
+---
+
+### Delete Categories
+
+```
+DELETE /v3/sessions/{sessionId}/players/{guildId}/sponsorblock/categories
+```
+
+---
+
+### [Segment Categories](https://wiki.sponsor.ajay.app/w/Segment_Categories):
 
 * `sponsor`
 * `selfpromo`
