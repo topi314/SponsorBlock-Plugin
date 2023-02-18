@@ -6,6 +6,8 @@ A [Lavalink](https://github.com/freyacodes/Lavalink) plugin to skip [SponsorBloc
 
 ## Installation
 
+> **Note** This plugin requires Lavalink v3.7 or higher
+
 To install this plugin either download the latest release and place it into your `plugins` folder or add the following
 into your `application.yml`
 

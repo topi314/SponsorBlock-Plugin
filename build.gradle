@@ -6,7 +6,7 @@ plugins {
 }
 
 group "com.github.TopiSenpai.Sponsorblock-Plugin"
-version "1.0.5"
+version "2.0.0"
 mainClassName = "org.springframework.boot.loader.JarLauncher"
 
 sourceCompatibility = 11
@@ -20,9 +20,8 @@ repositories {
 }
 
 dependencies {
-	compileOnly "com.github.freyacodes.Lavalink:plugin-api:7857975"
+	compileOnly "com.github.freyacodes.Lavalink:plugin-api:6d58916"
 	// runtimeOnly "com.github.freyacodes.lavalink:Lavalink-Server:3.6.1"
-	compileOnly "org.springframework.boot:spring-boot-starter-web:2.6.6"
 }
 
 shadowJar {
