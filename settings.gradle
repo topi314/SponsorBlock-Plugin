@@ -1,8 +1,1 @@
-pluginManagement {
-    repositories {
-        gradlePluginPortal()
-        maven { url "https://maven.arbjerg.dev/releases" }
-    }
-}
-
 rootProject.name = 'sponsorblock-plugin'
