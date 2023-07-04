@@ -1,42 +1,78 @@
 plugins {
 	id "java"
-	id "application"
 	id "maven-publish"
-	id "com.github.johnrengelman.shadow" version "7.1.1"
+	id "dev.arbjerg.lavalink.gradle-plugin" version "1.0.2"
 }
 
-group "com.github.TopiSenpai.Sponsorblock-Plugin"
-version "2.0.0"
-mainClassName = "org.springframework.boot.loader.JarLauncher"
+group "com.github.topi314.sponsorblock"
 
-sourceCompatibility = 11
+def (versionStr, isSnapshot) = getGitVersion()
+version versionStr
+println "Version: " + versionStr
+
+archivesBaseName = "sponsorblock-plugin"
+lavalinkPlugin{
+	name = "lavasrc-plugin"
+	apiVersion = "4.0.0-beta.1"
+	serverVersion = "1c0795bf156fe6559c9c0aed0412bcd8f323a3e0-SNAPSHOT"
+}
+
+sourceCompatibility = JavaVersion.VERSION_17
+targetCompatibility = JavaVersion.VERSION_17
 compileJava.options.encoding = "UTF-8"
 
 repositories {
 	mavenCentral()
-	maven { url "https://jitpack.io" }
-	maven { url "https://m2.dv8tion.net/releases" }
 	jcenter()
 }
 
-dependencies {
-	compileOnly "com.github.freyacodes.Lavalink:plugin-api:6d58916"
-	// runtimeOnly "com.github.freyacodes.lavalink:Lavalink-Server:3.6.1"
-}
-
-shadowJar {
-	def impl = project.configurations.implementation
-	impl.canBeResolved(true)
-	configurations = [impl]
-	archiveClassifier.set("")
-}
+var isMavenDefined = findProperty("MAVEN_USERNAME") != null && findProperty("MAVEN_PASSWORD") != null
 
 publishing {
 	publications {
 		maven(MavenPublication) {
-			pom {
-				from components.java
+            pom {
+                artifactId archivesBaseName
+            }
+        }
+	}
+	if (isMavenDefined) {
+		System.out.println("Publishing to Maven Repo")
+		repositories {
+			def snapshots = "https://maven.topi.wtf/snapshots"
+			def releases = "https://maven.topi.wtf/releases"
+
+			maven {
+				name = "Reposilite"
+				url = isSnapshot ? snapshots : releases
+				credentials {
+					username = findProperty("MAVEN_USERNAME")
+					password = findProperty("MAVEN_PASSWORD")
+				}
 			}
 		}
 	}
+}
+
+def getGitVersion() {
+	def versionStr = new ByteArrayOutputStream()
+	def result = exec {
+		standardOutput versionStr
+		errorOutput versionStr
+		ignoreExitValue true
+		commandLine "git", "describe", "--exact-match", "--tags"
+	}
+	if (result.exitValue == 0) {
+		return [versionStr.toString().trim(), false]
+	}
+
+
+	versionStr = new ByteArrayOutputStream()
+	exec {
+		standardOutput versionStr
+		errorOutput versionStr
+		commandLine "git", "rev-parse", "--short", "HEAD"
+	}
+
+	return [versionStr.toString().trim(), true]
 }

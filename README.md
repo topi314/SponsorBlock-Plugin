@@ -6,7 +6,7 @@ A [Lavalink](https://github.com/freyacodes/Lavalink) plugin to skip [SponsorBloc
 
 ## Installation
 
-> **Note** This plugin requires Lavalink v3.7 or higher
+> **Warning** This plugin requires Lavalink v4 or higher
 
 To install this plugin either download the latest release and place it into your `plugins` folder or add the following
 into your `application.yml`
@@ -14,16 +14,18 @@ into your `application.yml`
 ```yaml
 lavalink:
   plugins:
-    - dependency: "com.github.TopiSenpai:Sponsorblock-Plugin:x.x.x" # replace x.x.x with the latest release tag!
-      repository: "https://jitpack.io"
+    - dependency: "com.github.topi314.sponsorblock:sponsorblock-plugin:x.x.x" # replace x.x.x with the latest release tag!
+      repository: "https://maven.topi.wtf/releases"
 ```
+
+Snapshot builds are available in https://maven.topi.wtf/snapshots with the short commit hash as the version
 
 ## Usage
 
 ### Get Categories
 
 ```
-GET /v3/sessions/{sessionId}/players/{guildId}/sponsorblock/categories
+GET /v4/sessions/{sessionId}/players/{guildId}/sponsorblock/categories
 ```
 
 Response:
@@ -40,7 +42,7 @@ Response:
 ### Put Categories
 
 ```
-PUT /v3/sessions/{sessionId}/players/{guildId}/sponsorblock/categories
+PUT /v4/sessions/{sessionId}/players/{guildId}/sponsorblock/categories
 ```
 
 Request:
@@ -57,7 +59,7 @@ Request:
 ### Delete Categories
 
 ```
-DELETE /v3/sessions/{sessionId}/players/{guildId}/sponsorblock/categories
+DELETE /v4/sessions/{sessionId}/players/{guildId}/sponsorblock/categories
 ```
 
 ---
@@ -89,8 +91,8 @@ which is fired when the segments for a track are loaded
   "segments": [
     {
       "category": "...",
-      "start": "...", // in milliseconds
-      "end": "..." // in milliseconds
+      "start": 0, // in milliseconds
+      "end": 3000 // in milliseconds
     }
   ]
 }
@@ -107,8 +109,8 @@ which is fired when a segment is skipped
   "guildId": "...",
   "segment": {
     "category": "...",
-    "start": "...", // in milliseconds
-    "end": "..." // in milliseconds
+    "start": 0, // in milliseconds
+    "end": 3000 // in milliseconds
   }
 }
 ````
