@@ -156,7 +156,7 @@ public class SponsorBlockPlugin extends PluginEventHandler {
             if (segments != null && !segments.isEmpty()) {
                 context.sendMessage(new JsonObject(Map.of(
                         "op", JsonElementKt.JsonPrimitive("event"),
-                        "type", JsonElementKt.JsonPrimitive("SegmentsLoading"),
+                        "type", JsonElementKt.JsonPrimitive("SegmentsLoaded"),
                         "guildId", JsonElementKt.JsonPrimitive(String.valueOf(this.guildID)),
                         "segments", new JsonArray(segments.stream().map(VideoSegment::toJSON).collect(Collectors.toList()))
                 )));
