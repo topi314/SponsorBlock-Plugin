@@ -83,7 +83,7 @@ There are also two new events:
 
 which is fired when the segments for a track are loaded
 
-````json
+````json5
 {
   "op": "event",
   "type": "SegmentsLoaded",
@@ -102,7 +102,7 @@ which is fired when the segments for a track are loaded
 
 which is fired when a segment is skipped
 
-````json
+````json5
 {
   "op": "event",
   "type": "SegmentSkipped",
@@ -111,6 +111,41 @@ which is fired when a segment is skipped
     "category": "...",
     "start": 0, // in milliseconds
     "end": 3000 // in milliseconds
+  }
+}
+````
+
+### ChapterStarted
+
+which is fired when the chapters for a track are loaded
+
+````json5
+{
+  "type": "ChapterStarted",
+  "op": "event",
+  "guildId": "...",
+  "chapter": {
+    "name": "Prelude",
+    "start": 0, // in milliseconds
+    "end": 0, // in milliseconds (null if last chapter => until end of track)
+    "duration": "PT0S" // ISO-8601
+  }
+}
+````
+
+### ChapterStarted
+
+which is fired when a new Chapter starts
+````json5
+{
+  "type": "ChapterStarted",
+  "op": "event",
+  "guildId": "...",
+  "chapter": {
+    "name": "Prelude",
+    "start": 0, // in milliseconds
+    "end": 0,// in milliseconds (null if last chapter => until end of track)
+    "duration": "PT0S" // ISO-8601 (null if last chapter => until end of track)
   }
 }
 ````
