@@ -121,10 +121,10 @@ which is fired when the chapters for a track are loaded
 
 ```json5
 {
-  "type": "ChaptersLoaded",
   "op": "event",
+  "type": "ChaptersLoaded",
   "guildId": "...",
-  "chapter": [
+  "chapters": [
     {
       "name": "Prelude",
       "start": 0, // in milliseconds
@@ -140,8 +140,8 @@ which is fired when the chapters for a track are loaded
 which is fired when a new Chapter starts
 ```json5
 {
-  "type": "ChapterStarted",
   "op": "event",
+  "type": "ChapterStarted",
   "guildId": "...",
   "chapter": {
     "name": "Prelude",
