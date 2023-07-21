@@ -83,7 +83,7 @@ There are also two new events:
 
 which is fired when the segments for a track are loaded
 
-````json5
+```json5
 {
   "op": "event",
   "type": "SegmentsLoaded",
@@ -96,13 +96,13 @@ which is fired when the segments for a track are loaded
     }
   ]
 }
-````
+```
 
 ### SegmentSkipped
 
 which is fired when a segment is skipped
 
-````json5
+```json5
 {
   "op": "event",
   "type": "SegmentSkipped",
@@ -113,13 +113,13 @@ which is fired when a segment is skipped
     "end": 3000 // in milliseconds
   }
 }
-````
+```
 
 ### ChapterStarted
 
 which is fired when the chapters for a track are loaded
 
-````json5
+```json5
 {
   "type": "ChapterStarted",
   "op": "event",
@@ -127,16 +127,16 @@ which is fired when the chapters for a track are loaded
   "chapter": {
     "name": "Prelude",
     "start": 0, // in milliseconds
-    "end": 0, // in milliseconds (null if last chapter => until end of track)
+    "end": 0, // in milliseconds
     "duration": "PT0S" // ISO-8601
   }
 }
-````
+```
 
 ### ChapterStarted
 
 which is fired when a new Chapter starts
-````json5
+```json5
 {
   "type": "ChapterStarted",
   "op": "event",
@@ -144,11 +144,11 @@ which is fired when a new Chapter starts
   "chapter": {
     "name": "Prelude",
     "start": 0, // in milliseconds
-    "end": 0,// in milliseconds (null if last chapter => until end of track)
-    "duration": "PT0S" // ISO-8601 (null if last chapter => until end of track)
+    "end": 0,// in milliseconds
+    "duration": "PT0S" // ISO-8601
   }
 }
-````
+```
 
 ## Example
 
