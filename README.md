@@ -115,21 +115,23 @@ which is fired when a segment is skipped
 }
 ```
 
-### ChapterStarted
+### ChaptersLoaded
 
 which is fired when the chapters for a track are loaded
 
 ```json5
 {
-  "type": "ChapterStarted",
+  "type": "ChaptersLoaded",
   "op": "event",
   "guildId": "...",
-  "chapter": {
-    "name": "Prelude",
-    "start": 0, // in milliseconds
-    "end": 0, // in milliseconds
-    "duration": "PT0S" // ISO-8601
-  }
+  "chapter": [
+    {
+      "name": "Prelude",
+      "start": 0, // in milliseconds
+      "end": 0, // in milliseconds
+      "duration": "PT0S" // ISO-8601
+    }
+  ]
 }
 ```
 
