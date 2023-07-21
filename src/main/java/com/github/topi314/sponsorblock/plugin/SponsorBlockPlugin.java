@@ -149,7 +149,7 @@ public class SponsorBlockPlugin extends PluginEventHandler {
                 if (!segments.isEmpty()) {
                     context.sendMessage(EventsKt.eventSerializer(), new SegmentsLoaded("event", guildID, segments));
                 }
-                var chapters = InnerTubeClient.requestVideoChaptersById(httpInterface, track.getIdentifier());
+                var chapters = InnerTubeClient.requestVideoChaptersById(httpInterface, track.getIdentifier(), track.getDuration());
                 if (!chapters.isEmpty()) {
                     context.sendMessage(EventsKt.eventSerializer(), new ChaptersLoaded("event", guildID, chapters));
                 }

@@ -15,6 +15,8 @@ import java.net.URI
 import kotlin.math.pow
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
+import kotlin.time.DurationUnit
+import kotlin.time.toDuration
 
 val json = Json {
     ignoreUnknownKeys = true
@@ -59,7 +61,7 @@ fun HttpInterface.requestVideoRendererById(id: String): VideoRenderer? {
         }
 }
 
-fun HttpInterface.requestVideoChaptersById(id: String): List<Chapter> {
+fun HttpInterface.requestVideoChaptersById(id: String, trackLength: Long): List<Chapter> {
     val video = requestVideoRendererById(id) ?: return emptyList()
 
     val content = video.expandableMetadata?.expandableMetadataRenderer?.expandedContent ?: return emptyList()
@@ -68,13 +70,13 @@ fun HttpInterface.requestVideoChaptersById(id: String): List<Chapter> {
     return (all.zipWithNext() + (all.last() to null)).map { (now, next) ->
         val renderer = now.macroMarkersListItemRenderer
         val start = renderer.timeDescription.simpleText.parseDuration()
-        val end = next?.macroMarkersListItemRenderer?.timeDescription?.simpleText?.parseDuration()
+        val end = next?.macroMarkersListItemRenderer?.timeDescription?.simpleText?.parseDuration() ?: trackLength.toDuration(DurationUnit.MILLISECONDS)
 
         Chapter(
             renderer.title.simpleText,
             start.inWholeMilliseconds,
-            end?.inWholeMilliseconds,
-            end?.let { start + it }
+            end.inWholeMilliseconds,
+            start + end
         )
     }
 }
