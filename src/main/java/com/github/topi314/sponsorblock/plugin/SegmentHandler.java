@@ -25,14 +25,11 @@ public class SegmentHandler implements TrackMarkerHandler {
 
     @Override
     public void handle(MarkerState state) {
-        System.out.println("Started with state: " + state + " and segment");
         if (!(state == MarkerState.REACHED || state == MarkerState.LATE || state == MarkerState.BYPASSED)) {
             return;
         }
         var markable = segments.get(this.currentSegment);
-        System.out.println(markable);
         if (markable instanceof Chapter chapter) {
-            System.out.println("Found Chapter:" + chapter);
             context.sendMessage(EventsKt.eventSerializer(), new ChapterStarted("event", guildId, chapter));
         } else if (markable instanceof Segment segment) {
             track.setPosition(segment.getEnd());
