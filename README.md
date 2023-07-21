@@ -129,7 +129,7 @@ which is fired when the chapters for a track are loaded
       "name": "Prelude",
       "start": 0, // in milliseconds
       "end": 0, // in milliseconds
-      "duration": "PT0S" // ISO-8601
+      "duration": "0" // in milliseconds
     }
   ]
 }
@@ -147,7 +147,7 @@ which is fired when a new Chapter starts
     "name": "Prelude",
     "start": 0, // in milliseconds
     "end": 0,// in milliseconds
-    "duration": "PT0S" // ISO-8601
+    "duration": "0" // in milliseconds
   }
 }
 ```
