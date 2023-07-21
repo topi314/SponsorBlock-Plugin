@@ -2,7 +2,9 @@
 
 # SponsorBlock-Plugin
 
-A [Lavalink](https://github.com/freyacodes/Lavalink) plugin to skip [SponsorBlock](https://sponsor.ajay.app) segments in [YouTube](https://youtube.com) videos
+A [Lavalink](https://github.com/freyacodes/Lavalink) plugin
+to skip [SponsorBlock](https://sponsor.ajay.app) segments in [YouTube](https://youtube.com) videos
+and provide information about [chapters](https://support.google.com/youtube/answer/9884579)
 
 ## Installation
 
@@ -83,7 +85,7 @@ There are also two new events:
 
 which is fired when the segments for a track are loaded
 
-````json
+```json5
 {
   "op": "event",
   "type": "SegmentsLoaded",
@@ -96,13 +98,13 @@ which is fired when the segments for a track are loaded
     }
   ]
 }
-````
+```
 
 ### SegmentSkipped
 
 which is fired when a segment is skipped
 
-````json
+```json5
 {
   "op": "event",
   "type": "SegmentSkipped",
@@ -113,7 +115,43 @@ which is fired when a segment is skipped
     "end": 3000 // in milliseconds
   }
 }
-````
+```
+
+### ChaptersLoaded
+
+which is fired when the chapters for a track are loaded
+
+```json5
+{
+  "op": "event",
+  "type": "ChaptersLoaded",
+  "guildId": "...",
+  "chapters": [
+    {
+      "name": "Prelude",
+      "start": 0, // in milliseconds
+      "end": 0, // in milliseconds
+      "duration": "0" // in milliseconds
+    }
+  ]}
+```
+
+### ChapterStarted
+
+which is fired when a new Chapter starts
+```json5
+{
+  "op": "event",
+  "type": "ChapterStarted",
+  "guildId": "...",
+  "chapter": {
+    "name": "Prelude",
+    "start": 0, // in milliseconds
+    "end": 0,// in milliseconds
+    "duration": "0" // in milliseconds
+  }
+}
+```
 
 ## Example
 

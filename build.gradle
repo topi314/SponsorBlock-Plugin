@@ -1,17 +1,23 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 plugins {
 	id "java"
 	id "maven-publish"
-	id "dev.arbjerg.lavalink.gradle-plugin" version "1.0.5"
+	id "dev.arbjerg.lavalink.gradle-plugin" version "1.0.8"
+	id "org.jetbrains.kotlin.jvm" version "1.9.0"
+	id "org.jetbrains.kotlin.plugin.serialization" version "1.9.0"
 }
 
 group "com.github.topi314.sponsorblock"
 
 def (versionStr, isSnapshot) = getGitVersion()
-version versionStr
+allprojects {
+	version versionStr
+}
 println "Version: " + versionStr
 
 archivesBaseName = "sponsorblock-plugin"
-lavalinkPlugin{
+lavalinkPlugin {
 	name = "sponsorblock-plugin"
 	apiVersion = "4.0.0-beta.1"
 	serverVersion = gitHash("1c0795bf156fe6559c9c0aed0412bcd8f323a3e0")
@@ -21,32 +27,48 @@ sourceCompatibility = JavaVersion.VERSION_17
 targetCompatibility = JavaVersion.VERSION_17
 compileJava.options.encoding = "UTF-8"
 
-repositories {
-	mavenCentral()
-	jcenter()
+allprojects {
+	repositories {
+		mavenCentral()
+		jcenter()
+	}
 }
 
 var isMavenDefined = findProperty("MAVEN_USERNAME") != null && findProperty("MAVEN_PASSWORD") != null
 
+dependencies {
+	implementation(projects.protocol)
+	implementation("com.github.walkyst.lavaplayer-fork:lava-common:17c75f51f9")
+}
 publishing {
 	publications {
 		maven(MavenPublication) {
 			from components.java
 			artifactId archivesBaseName
-        }
+		}
 	}
-	if (isMavenDefined) {
-		System.out.println("Publishing to Maven Repo")
-		repositories {
-			def snapshots = "https://maven.topi.wtf/snapshots"
-			def releases = "https://maven.topi.wtf/releases"
+}
 
-			maven {
-				name = "Reposilite"
-				url = isSnapshot ? snapshots : releases
-				credentials {
-					username = findProperty("MAVEN_USERNAME")
-					password = findProperty("MAVEN_PASSWORD")
+allprojects {
+	publishing {
+		publications {
+			withType(MavenPublication).configureEach {
+				artifactId(artifactId.toLowerCase())
+			}
+		}
+		if (isMavenDefined) {
+			System.out.println("Publishing to Maven Repo")
+			repositories {
+				def snapshots = "https://maven.topi.wtf/snapshots"
+				def releases = "https://maven.topi.wtf/releases"
+
+				maven {
+					name = "Reposilite"
+					url = isSnapshot ? snapshots : releases
+					credentials {
+						username = findProperty("MAVEN_USERNAME")
+						password = findProperty("MAVEN_PASSWORD")
+					}
 				}
 			}
 		}
@@ -74,4 +96,18 @@ def getGitVersion() {
 	}
 
 	return [versionStr.toString().trim(), true]
+}
+
+kotlin {
+	compilerOptions {
+		jvmTarget = JvmTarget.JVM_17
+	}
+}
+
+sourceSets {
+	main {
+		resources {
+			srcDir("build/generated/lavalink/main/resources")
+		}
+	}
 }

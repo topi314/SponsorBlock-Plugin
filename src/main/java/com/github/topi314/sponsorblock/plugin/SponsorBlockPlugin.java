@@ -1,5 +1,7 @@
 package com.github.topi314.sponsorblock.plugin;
 
+import com.github.topi314.sponsorblock.plugin.inntertube.InnerTubeClient;
+import com.github.topi314.sponsorblock.plugin.protocol.*;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
 import com.sedmelluq.discord.lavaplayer.tools.io.HttpClientTools;
@@ -9,10 +11,8 @@ import com.sedmelluq.discord.lavaplayer.track.TrackMarker;
 import dev.arbjerg.lavalink.api.IPlayer;
 import dev.arbjerg.lavalink.api.ISocketContext;
 import dev.arbjerg.lavalink.api.PluginEventHandler;
-import kotlinx.serialization.json.JsonArray;
-import kotlinx.serialization.json.JsonElementKt;
-import kotlinx.serialization.json.JsonObject;
 import org.apache.http.client.methods.HttpGet;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -23,10 +23,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
@@ -92,19 +89,19 @@ public class SponsorBlockPlugin extends PluginEventHandler {
     }
 
     @Override
-    public void onNewPlayer(ISocketContext context, IPlayer iPlayer) {
+    public void onNewPlayer(@NotNull ISocketContext context, IPlayer iPlayer) {
         iPlayer.getAudioPlayer().addListener(new PlayerListener(this, context, iPlayer.getGuildId()));
     }
 
     @Override
-    public void onDestroyPlayer(ISocketContext context, IPlayer player) {
+    public void onDestroyPlayer(ISocketContext context, @NotNull IPlayer player) {
         var guildCategoriesToSkip = categoriesToSkip.get(context.getSessionId());
         if (guildCategoriesToSkip != null) {
             guildCategoriesToSkip.remove(player.getGuildId());
         }
     }
 
-    public List<VideoSegment> retrieveVideoSegments(String videoId, Set<String> categories) throws IOException {
+    public List<Segment> retrieveVideoSegments(String videoId, Set<String> categories) throws IOException {
         var queryParam = URLEncoder.encode("[" + categories.stream().map(s -> "\"" + s + "\"").collect(Collectors.joining(", ")) + "]", StandardCharsets.UTF_8);
         var request = new HttpGet(String.format(SPONSORBLOCK_URL, videoId, queryParam));
 
@@ -113,10 +110,10 @@ public class SponsorBlockPlugin extends PluginEventHandler {
             return null;
         }
 
-        var segments = new ArrayList<VideoSegment>();
+        var segments = new ArrayList<Segment>();
         for (var segment : json.values()) {
             var segmentTimes = segment.get("segment");
-            segments.add(new VideoSegment(segment.get("category").text(), (long) (segmentTimes.index(0).as(Float.class) * 1000), (long) (segmentTimes.index(1).as(Float.class) * 1000)));
+            segments.add(new Segment(segment.get("category").text(), (long) (segmentTimes.index(0).as(Float.class) * 1000), (long) (segmentTimes.index(1).as(Float.class) * 1000)));
         }
         return segments;
     }
@@ -146,21 +143,28 @@ public class SponsorBlockPlugin extends PluginEventHandler {
             if (categories == null) {
                 return;
             }
-            List<VideoSegment> segments;
-            try {
-                segments = this.plugin.retrieveVideoSegments(track.getIdentifier(), categories);
+            List<TrackMarkable> markables;
+            try (var httpInterface = plugin.httpInterfaceManager.getInterface()) {
+                var segments = this.plugin.retrieveVideoSegments(track.getIdentifier(), categories);
+                if (!segments.isEmpty()) {
+                    context.sendMessage(EventsKt.eventSerializer(), new SegmentsLoaded("event", guildID, segments));
+                }
+                var chapters = InnerTubeClient.requestVideoChaptersById(httpInterface, track.getIdentifier(), track.getDuration());
+                if (!chapters.isEmpty()) {
+                    context.sendMessage(EventsKt.eventSerializer(), new ChaptersLoaded("event", guildID, chapters));
+                }
+                var output = new ArrayList<TrackMarkable>(segments);
+                output.addAll(chapters);
+                markables = output;
+
+                output.sort(Comparator.comparing(TrackMarkable::getStart));
             } catch (IOException e) {
                 log.error("Failed to retrieve video segments", e);
                 return;
             }
-            if (segments != null && !segments.isEmpty()) {
-                context.sendMessage(new JsonObject(Map.of(
-                        "op", JsonElementKt.JsonPrimitive("event"),
-                        "type", JsonElementKt.JsonPrimitive("SegmentsLoaded"),
-                        "guildId", JsonElementKt.JsonPrimitive(String.valueOf(this.guildID)),
-                        "segments", new JsonArray(segments.stream().map(VideoSegment::toJSON).collect(Collectors.toList()))
-                )));
-                track.setMarker(new TrackMarker(segments.get(0).getSegmentStart(), new SegmentHandler(context, this.guildID, track, segments)));
+            log.info("Categories are: {}", markables);
+            if (!markables.isEmpty()) {
+                track.setMarker(new TrackMarker(markables.get(0).getStart(), new SegmentHandler(context, this.guildID, track, markables)));
             }
         }
 
