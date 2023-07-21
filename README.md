@@ -2,7 +2,9 @@
 
 # SponsorBlock-Plugin
 
-A [Lavalink](https://github.com/freyacodes/Lavalink) plugin to skip [SponsorBlock](https://sponsor.ajay.app) segments in [YouTube](https://youtube.com) videos
+A [Lavalink](https://github.com/freyacodes/Lavalink) plugin
+to skip [SponsorBlock](https://sponsor.ajay.app) segments in [YouTube](https://youtube.com) videos
+and provide information about [chapters](https://support.google.com/youtube/answer/9884579)
 
 ## Installation
 
@@ -131,8 +133,7 @@ which is fired when the chapters for a track are loaded
       "end": 0, // in milliseconds
       "duration": "0" // in milliseconds
     }
-  ]
-}
+  ]}
 ```
 
 ### ChapterStarted
