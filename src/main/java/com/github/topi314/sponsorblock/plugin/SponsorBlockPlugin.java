@@ -107,7 +107,7 @@ public class SponsorBlockPlugin extends PluginEventHandler {
 
         var json = HttpClientTools.fetchResponseAsJson(this.httpInterfaceManager.getInterface(), request);
         if (json == null) {
-            return null;
+            return List.of();
         }
 
         var segments = new ArrayList<Segment>();
