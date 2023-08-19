@@ -37,7 +37,6 @@ var isMavenDefined = findProperty("MAVEN_USERNAME") != null && findProperty("MAV
 
 dependencies {
 	implementation(projects.protocol)
-	implementation("com.github.walkyst.lavaplayer-fork:lava-common:17c75f51f9")
 }
 
 allprojects {

@@ -2,13 +2,13 @@
 
 # SponsorBlock-Plugin
 
-A [Lavalink](https://github.com/freyacodes/Lavalink) plugin
+A [Lavalink](https://github.com/lavalink-devs/Lavalink) plugin
 to skip [SponsorBlock](https://sponsor.ajay.app) segments in [YouTube](https://youtube.com) videos
 and provide information about [chapters](https://support.google.com/youtube/answer/9884579)
 
 ## Installation
 
-> **Warning** This plugin requires Lavalink v4 or higher
+> **Warning** This plugin requires Lavalink v4 beta 3 or higher
 
 To install this plugin either download the latest release and place it into your `plugins` folder or add the following
 into your `application.yml`
