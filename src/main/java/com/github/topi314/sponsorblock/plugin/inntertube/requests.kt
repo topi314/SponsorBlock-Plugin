@@ -43,7 +43,7 @@ fun HttpInterface.requestVideoSearch(query: String): InnerTubeSingleBox<TwoColum
     )
 
 fun HttpInterface.requestVideoRendererById(id: String): VideoRenderer? {
-    val response = requestVideoSearch("https://youtu.be/$id")
+    val response = requestVideoSearch(id)
 
     return response
         .contents
