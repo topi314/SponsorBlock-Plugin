@@ -19,7 +19,7 @@ sealed interface SponsorblockPluginEvent
 data class SegmentSkipped(
     @EncodeDefault(EncodeDefault.Mode.ALWAYS)
     val op: String = "event",
-    val guildId: Long,
+    val guildId: String,
     val segment: Segment
 ) : SponsorblockPluginEvent
 
@@ -28,7 +28,7 @@ data class SegmentSkipped(
 data class SegmentsLoaded(
     @EncodeDefault(EncodeDefault.Mode.ALWAYS)
     val op: String = "event",
-    val guildId: Long,
+    val guildId: String,
     val segments: List<Segment>
 ) : SponsorblockPluginEvent
 
@@ -37,7 +37,7 @@ data class SegmentsLoaded(
 data class ChapterStarted(
     @EncodeDefault(EncodeDefault.Mode.ALWAYS)
     val op: String = "event",
-    val guildId: Long,
+    val guildId: String,
     val chapter: Chapter
 ) : SponsorblockPluginEvent
 
@@ -46,6 +46,6 @@ data class ChapterStarted(
 data class ChaptersLoaded(
     @EncodeDefault(EncodeDefault.Mode.ALWAYS)
     val op: String = "event",
-    val guildId: Long,
+    val guildId: String,
     val chapters: List<Chapter>
 ) : SponsorblockPluginEvent

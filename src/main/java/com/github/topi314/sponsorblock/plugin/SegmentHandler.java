@@ -30,10 +30,10 @@ public class SegmentHandler implements TrackMarkerHandler {
         }
         var markable = segments.get(this.currentSegment);
         if (markable instanceof Chapter chapter) {
-            context.sendMessage(EventsKt.eventSerializer(), new ChapterStarted("event", guildId, chapter));
+            context.sendMessage(EventsKt.eventSerializer(), new ChapterStarted("event", String.valueOf(guildId), chapter));
         } else if (markable instanceof Segment segment) {
             track.setPosition(segment.getEnd());
-            context.sendMessage(EventsKt.eventSerializer(), new SegmentSkipped("event", guildId, segment));
+            context.sendMessage(EventsKt.eventSerializer(), new SegmentSkipped("event", String.valueOf(guildId), segment));
         }
         this.currentSegment++;
         if (this.currentSegment < segments.size()) {

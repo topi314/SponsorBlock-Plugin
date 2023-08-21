@@ -122,12 +122,12 @@ public class SponsorBlockPlugin extends PluginEventHandler {
 
         private final SponsorBlockPlugin plugin;
         private final ISocketContext context;
-        private final long guildID;
+        private final long guildId;
 
-        public PlayerListener(SponsorBlockPlugin plugin, ISocketContext socketContext, long guildID) {
+        public PlayerListener(SponsorBlockPlugin plugin, ISocketContext socketContext, long guildId) {
             this.plugin = plugin;
             this.context = socketContext;
-            this.guildID = guildID;
+            this.guildId = guildId;
         }
 
         @Override
@@ -139,7 +139,7 @@ public class SponsorBlockPlugin extends PluginEventHandler {
             if (guildCategoriesToSkip == null) {
                 return;
             }
-            var categories = guildCategoriesToSkip.get(this.guildID);
+            var categories = guildCategoriesToSkip.get(this.guildId);
             if (categories == null) {
                 return;
             }
@@ -147,11 +147,11 @@ public class SponsorBlockPlugin extends PluginEventHandler {
             try (var httpInterface = plugin.httpInterfaceManager.getInterface()) {
                 var segments = this.plugin.retrieveVideoSegments(track.getIdentifier(), categories);
                 if (!segments.isEmpty()) {
-                    context.sendMessage(EventsKt.eventSerializer(), new SegmentsLoaded("event", guildID, segments));
+                    context.sendMessage(EventsKt.eventSerializer(), new SegmentsLoaded("event", String.valueOf(guildId), segments));
                 }
                 var chapters = InnerTubeClient.requestVideoChaptersById(httpInterface, track.getIdentifier(), track.getDuration());
                 if (!chapters.isEmpty()) {
-                    context.sendMessage(EventsKt.eventSerializer(), new ChaptersLoaded("event", guildID, chapters));
+                    context.sendMessage(EventsKt.eventSerializer(), new ChaptersLoaded("event", String.valueOf(guildId), chapters));
                 }
                 var output = new ArrayList<TrackMarkable>(segments);
                 output.addAll(chapters);
@@ -164,7 +164,7 @@ public class SponsorBlockPlugin extends PluginEventHandler {
             }
             log.info("Categories are: {}", markables);
             if (!markables.isEmpty()) {
-                track.setMarker(new TrackMarker(markables.get(0).getStart(), new SegmentHandler(context, this.guildID, track, markables)));
+                track.setMarker(new TrackMarker(markables.get(0).getStart(), new SegmentHandler(context, this.guildId, track, markables)));
             }
         }
 
