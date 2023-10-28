@@ -76,7 +76,7 @@ fun HttpInterface.requestVideoChaptersById(id: String, trackLength: Long): List<
             renderer.title.joinRuns(),
             start.inWholeMilliseconds,
             end.inWholeMilliseconds,
-            start + end
+            end - start
         )
     }
 }
