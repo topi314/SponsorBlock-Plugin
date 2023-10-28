@@ -69,11 +69,11 @@ fun HttpInterface.requestVideoChaptersById(id: String, trackLength: Long): List<
     val all = content.horizontalCardListRenderer.cards
     return (all.zipWithNext() + (all.last() to null)).map { (now, next) ->
         val renderer = now.macroMarkersListItemRenderer
-        val start = renderer.timeDescription.simpleText.parseDuration()
-        val end = next?.macroMarkersListItemRenderer?.timeDescription?.simpleText?.parseDuration() ?: trackLength.toDuration(DurationUnit.MILLISECONDS)
+        val start = renderer.timeDescription.joinRuns().parseDuration()
+        val end = next?.macroMarkersListItemRenderer?.timeDescription?.joinRuns()?.parseDuration() ?: trackLength.toDuration(DurationUnit.MILLISECONDS)
 
         Chapter(
-            renderer.title.simpleText,
+            renderer.title.joinRuns(),
             start.inWholeMilliseconds,
             end.inWholeMilliseconds,
             start + end
