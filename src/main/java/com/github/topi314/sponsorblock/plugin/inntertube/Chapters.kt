@@ -34,7 +34,12 @@ data class MacroMarkersListItemRenderer(
 )
 
 @Serializable
-data class TextBlock(val simpleText: String) {
-    override fun toString(): String = simpleText
+data class TextBlock(val runs: List<Run> = emptyList()) {
+    @Serializable
+    data class Run(val text: String, val bold: Boolean = false)
+
+    fun joinRuns() = runs.joinToString("", transform = Run::text)
+
+    override fun toString(): String = joinRuns()
 }
 
