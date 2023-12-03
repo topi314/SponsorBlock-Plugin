@@ -3,7 +3,7 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 plugins {
 	id "java"
 	id "maven-publish"
-	id "dev.arbjerg.lavalink.gradle-plugin" version "1.0.11"
+	id "dev.arbjerg.lavalink.gradle-plugin" version "1.0.15"
 	id "org.jetbrains.kotlin.jvm" version "1.9.0"
 	id "org.jetbrains.kotlin.plugin.serialization" version "1.9.0"
 }
@@ -19,7 +19,8 @@ println "Version: " + versionStr
 archivesBaseName = "sponsorblock-plugin"
 lavalinkPlugin {
 	name = "sponsorblock-plugin"
-	apiVersion = "4.0.0-beta.3"
+	apiVersion = "4.0.0"
+	serverVersion = "4.0.0"
 }
 
 sourceCompatibility = JavaVersion.VERSION_17
