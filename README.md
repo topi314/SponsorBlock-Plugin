@@ -13,6 +13,9 @@ and provide information about [chapters](https://support.google.com/youtube/answ
 To install this plugin either download the latest release and place it into your `plugins` folder or add the following
 into your `application.yml`
 
+> **Note**
+> For a full `application.yml` example see [here](application.example.yml)
+
 ```yaml
 lavalink:
   plugins:
