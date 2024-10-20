@@ -11,6 +11,7 @@ import com.sedmelluq.discord.lavaplayer.track.TrackMarker;
 import dev.arbjerg.lavalink.api.IPlayer;
 import dev.arbjerg.lavalink.api.ISocketContext;
 import dev.arbjerg.lavalink.api.PluginEventHandler;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpGet;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -40,6 +41,12 @@ public class SponsorBlockPlugin extends PluginEventHandler {
     public SponsorBlockPlugin() {
         log.info("Loading SponsorBlock Plugin...");
         this.httpInterfaceManager = HttpClientTools.createDefaultThreadLocalManager();
+        this.httpInterfaceManager.configureRequests(requestConfig -> RequestConfig.copy(requestConfig)
+            .setConnectTimeout(10000)
+            .setSocketTimeout(10000)
+            .setConnectionRequestTimeout(10000)
+            .build()
+        );
         this.categoriesToSkip = new ConcurrentHashMap<>();
     }
 
