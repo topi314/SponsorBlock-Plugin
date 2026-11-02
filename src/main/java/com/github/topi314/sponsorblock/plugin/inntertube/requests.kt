@@ -64,9 +64,8 @@ fun HttpInterface.requestVideoRendererById(id: String): VideoRenderer? {
 fun HttpInterface.requestVideoChaptersById(id: String, trackLength: Long): List<Chapter> {
     val video = requestVideoRendererById(id) ?: return emptyList()
 
-    val content = video.expandableMetadata?.expandableMetadataRenderer?.expandedContent ?: return emptyList()
-
-    val all = content.horizontalCardListRenderer.cards
+    val all = video.expandableMetadata?.expandableMetadataRenderer?.expandedContent?.horizontalCardListRenderer?.cards
+    if (all.isNullOrEmpty()) return emptyList()
     return (all.zipWithNext() + (all.last() to null)).map { (now, next) ->
         val renderer = now.macroMarkersListItemRenderer
         val start = renderer.timeDescription.joinRuns().parseDuration()

@@ -149,7 +149,13 @@ public class SponsorBlockPlugin extends PluginEventHandler {
                 if (!segments.isEmpty()) {
                     context.sendMessage(EventsKt.eventSerializer(), new SegmentsLoaded("event", String.valueOf(guildId), segments));
                 }
-                var chapters = InnerTubeClient.requestVideoChaptersById(httpInterface, track.getIdentifier(), track.getDuration());
+                List<Chapter> chapters;
+                try {
+                    chapters = InnerTubeClient.requestVideoChaptersById(httpInterface, track.getIdentifier(), track.getDuration());
+                } catch (Exception e) {
+                    log.warn("Failed to retrieve chapters for {}", track.getIdentifier(), e);
+                    chapters = List.of();
+                }
                 if (!chapters.isEmpty()) {
                     context.sendMessage(EventsKt.eventSerializer(), new ChaptersLoaded("event", String.valueOf(guildId), chapters));
                 }

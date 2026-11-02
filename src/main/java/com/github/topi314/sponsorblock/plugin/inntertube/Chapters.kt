@@ -15,7 +15,7 @@ data class ExpandableMetadata(val expandableMetadataRenderer: ExpandableMetadata
 data class ExpandableMetadataRenderer(val expandedContent: ExpandedContent)
 
 @Serializable
-data class ExpandedContent(val horizontalCardListRenderer: HorizontalCardListRenderer)
+data class ExpandedContent(val horizontalCardListRenderer: HorizontalCardListRenderer? = null)
 
 @Serializable
 data class HorizontalCardListRenderer(
